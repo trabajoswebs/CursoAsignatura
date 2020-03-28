@@ -119,7 +119,7 @@ public class CursoAsignatura {
                         repetir = (continuar.equalsIgnoreCase("S")); //Si se desea continuar añadiendo cursos
 
                     } else {
-                        throw new Exception("No se ha podido renombrar el archivo " + ficheroActualizado.getName() + " a " + CURASIGFILENAME); 
+                        throw new Exception("No se ha podido renombrar el archivo " + ficheroActualizado.getName() + " a " + CURASIGFILENAME);
                     }
 
                 } else {
@@ -248,10 +248,17 @@ public class CursoAsignatura {
         FileReader fr = null;
         BufferedReader entrada = null;
         StringBuilder cursos = new StringBuilder();
-        try {            
+        
+        try {           
+            
+            crearFichero(DIRECTORY, CURASIGFILENAME); //creamos un nuevo fichero si no existe
+            
             fr = new FileReader(CURASIGFILEPATH);
             entrada = new BufferedReader(fr);
             cadena = entrada.readLine();
+            
+            if(cadena == null) throw new IOException("El fichero se encuentra vacio.");
+            
             while(cadena != null){
                 cursos.append(cadena);
                 cursos.append("\n");
@@ -260,7 +267,7 @@ public class CursoAsignatura {
         } catch (FileNotFoundException ex) {
             Logger.getLogger(CursoAsignatura.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(CursoAsignatura.class.getName()).log(Level.SEVERE, null, ex);
+             System.out.println("\n\tExcepción: " + ex.getMessage());
         } finally {
             try {
                 if (fr != null) {
