@@ -26,9 +26,6 @@ public class CursoAsignatura {
     public static final String CURASIGFILENAME = "cursoAsignatura.txt";
     public static final String CURASIGFILEPATH = DIRECTORY + CURASIGFILENAME;
     
-    static TreeMap<String, String> tmCCASIGNA = new TreeMap<String, String>();//Map con nombres de cursos
-    static TreeMap<String, String> tmCC = new TreeMap<String, String>();//Map con nombres de cursos
-    
     static Scanner sc = new Scanner(System.in);
     /**
      * @param args the command line arguments
@@ -36,13 +33,10 @@ public class CursoAsignatura {
      
     
     public static void main(String[] args) {
-        // TODO code application logic here 
-        TablasCursoAsignaturas.cargaCursos(tmCC);
-        TablasCursoAsignaturas.cargaCursosAsignaturas(tmCCASIGNA);
+        // TODO code application logic here
         subMenuCursoAsignaturas();
     }
-    
-    
+        
     /**
      * Elimina la asignatura en el fichero Profesores/CursosAsignaturas.txt
      */
@@ -68,11 +62,7 @@ public class CursoAsignatura {
                 if (codCurso.trim().isEmpty()) {
                     throw new Exception("Debe introducir un código de asignatura válido.");
                 }
-                
-                if (! tmCCASIGNA.containsKey(codCurso)) { //Comprobamos la existencia del código de la asignatura
-                    throw new Exception("La asignatura no existe.");
-                }
-                
+                                                
                 fichero = new RandomAccessFile(CURASIGFILEPATH, "r");
                 
                 if(fichero.length() == 0) throw new Exception("El fichero de las asignaturas se encuentra vacio.");
@@ -94,7 +84,7 @@ public class CursoAsignatura {
                 if (! existeCodigo) // Si el código no existe en el fichero lanzamos la exepción
                         throw new Exception("El código del curso (" + codCurso.toUpperCase() + ") que se desea eliminar no existe en el fichero.");
                 
-                TablasCursoAsignaturas.crearFichero(DIRECTORY, "cursosActualizados.txt"); //creamos un nuevo fichero
+                crearFichero(DIRECTORY, "cursosActualizados.txt"); //creamos un nuevo fichero
                 
                 ficheroNuevo = new RandomAccessFile(ficheroActualizado, "rw");
                 
@@ -122,13 +112,6 @@ public class CursoAsignatura {
                      
                         if (ficheroOriginal.renameTo(destFichero)) {//Renombramos el fichero
                             
-                            if (tmCCASIGNA.containsKey(codCurso)) { //Actualizamos el TreeMap
-                                tmCCASIGNA.remove(codCurso); // Eliminamos la asignatura del treemap
-                            }else{
-                                tmCCASIGNA.clear();//Eliminamos todos los datos del TreeMap
-                                TablasCursoAsignaturas.cargaCursosAsignaturas(tmCCASIGNA); //Si ocurre un error volcamos los datos del fichero al TreeMap y lo actualizamos
-                            }
-
                         System.out.println("Se ha eliminado correctamente la asignatura  " + codCurso + " del fichero.");
                         System.out.println("Si desea eliminar más asignaturas de la lista introduzca la letra: \"S\"");
 
@@ -195,10 +178,7 @@ public class CursoAsignatura {
                 }
                 codCurso = codCursoAsignatura.substring(0, 2).toUpperCase(); // Obtenemos el código del curso
                 
-                if (! tmCC.containsKey(codCurso)) { //Comprobamos la existencia del código del curso
-                    throw new Exception("El curso no existe.");
-                }
-                
+                               
                 System.out.println("Introduzca el nombre de la asignatura:");
                 nombreAsignatura = sc.nextLine();                
                
@@ -206,7 +186,7 @@ public class CursoAsignatura {
                     throw new Exception("Debe introducir el nombre de la asignatura.");
                 }
 
-                TablasCursoAsignaturas.crearFichero(DIRECTORY, CURASIGFILENAME); //Se crea el fichero si no existe
+                crearFichero(DIRECTORY, CURASIGFILENAME); //Se crea el fichero si no existe
                 
                 fichero = new RandomAccessFile(CURASIGFILEPATH, "rw");
                 cadena = fichero.readLine();
@@ -224,14 +204,7 @@ public class CursoAsignatura {
                 cadena = codCursoAsignatura.toUpperCase() + "," + nombreAsignatura + "\n";
                 fichero.writeBytes(cadena);
                 
-                //ACTUALIZAMOS EL TREEMAP
-                if (! tmCCASIGNA.containsKey(codCursoAsignatura)) { //Actualizamos el TreeMap
-                    tmCCASIGNA.put(codCursoAsignatura, "," + nombreAsignatura + "\n"); // añadimos la asignatura al treemap
-                } else {
-                    tmCCASIGNA.clear();//Eliminamos todos los datos del TreeMap
-                    TablasCursoAsignaturas.cargaCursosAsignaturas(tmCCASIGNA); //volcamos los datos del fichero al TreeMap y lo actualizamos
-                    tmCCASIGNA.put(codCursoAsignatura, "," + nombreAsignatura + "\n"); // añadimos la asignatura al treemap
-                }
+               
                 System.out.println("Se ha añadido correctamente la asignatura en el fichero.");
                 System.out.println("Si desea añadir más asignaturas al fichero introduzca la letra: \"S\"");
                 continuar = sc.nextLine();
@@ -344,5 +317,46 @@ public class CursoAsignatura {
             
         }while(continuar);
         
+    }
+    
+     /**
+     * Crea el fichero, pasado por parametro, si no existe
+     * @param ruta direccion de la ubicacion del fichero
+     * @param fichero nombre del fichero
+     * @throws IOException 
+     */
+    public static void crearFichero(String ruta, String fichero) throws IOException {
+        File cursoRuta = new File(ruta);
+        File cursoFichero = new File(cursoRuta, fichero);
+        
+        if (! cursoFichero.exists()) {
+
+            System.out.println("El fichero " + cursoFichero.getAbsolutePath() + " no existe.");
+
+            if (!cursoRuta.exists()) {
+                System.out.println("El directorio " + cursoRuta.getAbsolutePath() + " no existe.");
+
+                if (cursoRuta.mkdir()) {
+                    System.out.println("Se ha creado el directorio " + cursoRuta.getAbsolutePath());
+
+                    if (cursoFichero.createNewFile()) {
+                        System.out.println("Se ha creado el fichero " + cursoFichero.getName());
+                    } else {
+                        throw new IOException("No se ha podido crear el fichero " + cursoFichero.getName());
+                    }
+
+                } else {
+                    throw new IOException("No se ha podido crear la ruta " + cursoRuta.getAbsolutePath());
+                }
+            } else {
+
+                if (cursoFichero.createNewFile()) {
+                    System.out.println("Se ha creado el fichero " + cursoFichero.getName());
+                } else {
+                    throw new IOException("No se ha podido crear el fichero " + cursoFichero.getName());
+                }
+
+            }
+        }
     }
 }
